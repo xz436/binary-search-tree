@@ -1,4 +1,4 @@
-* TODO: 一定要能熟练地写出所有问题的递归和非递归做法！ 
+* TODO: 
  * 
  * 1. 求二叉树中的节点个数: getNodeNumRec（递归），getNodeNum（迭代） 
  * 2. 求二叉树的深度: getDepthRec（递归），getDepth  
@@ -334,8 +334,8 @@ public static int getNodeNumKthLevel(TreeNode root, int k){
   }
  * 9. 判断二叉树是不是平衡二叉树：isAVLRec 
   1）如果二叉树为空，返回真 
-（2）如果二叉树不为空，如果左子树和右子树都是AVL树并且左子树和右子树高度相差不大于1，返回真，其他返回假 
-     */  
+（2）如果二叉树不为空，这里用到一个小trick，就是return maxDpeth != -1以此判断是否是平衡树，因为平衡树
+的要求有：左子树为平衡树，右子树为平衡树，且左右子树高度差不超过1，注意：这里出现了高度！
 public static boolean isAVL(TreeNode root){
 	if(root == null){
 		return true;
@@ -347,14 +347,67 @@ private static int maxDepth(TreeNode root){
 		return 0;
 	}
 	int left = maxDepth(root.left);
-	if(){
-
+	int right = maxDepth(root.right);
+	if(left == -1 || right == -1 || Math.abs(left - right) > 1){
+		return -1;
 	}
+	return Math.max(left, right) + 1;
 }
  * 10. 求二叉树的镜像（破坏和不破坏原来的树两种情况）：mirrorRec, mirrorCopyRec 
+破坏原来的树
+public static TreeNode mirrorCopy(TreeNode n1){
+	if(n1 == null)
+		return null;
+	TreeNode left = mirrorCopy(n1.left);
+	TreeNode right = mirrorCopy(n1.right);
+	n1.left = right;
+	n1.right = left;
+	return n1;
+}
+不破坏原来的树，那就新建一个树呗
+public static TreeNode mirrorCopy(TreeNode n1){
+	if(n1 == null){
+		return null;
+	}
+	TreeNode newTree = new TreeNode(n1.val);
+	newTree.left = mirrorCopy(n1.right);
+	newTree.right = mirrorCopy(n2.left);
+	return newTree;
+}
+
  * 10.1 判断两个树是否互相镜像：isMirrorRec 
+public static boolean isMirror(TreeNode n1, TreeNode n2){
+	if(n1 == null && n2 == null){
+		return true;
+	}
+	if(n1 == null || n2 == null){
+		return false;
+	}
+	if(n1.val == n2.val){
+		return isMirror(n1.left, n2.left) && isMirror(n1.right, n2.right);
+	}
+	return false;
+}
  * 11. 求二叉树中两个节点的最低公共祖先节点：getLastCommonParent, getLastCommonParentRec, getLastCommonParentRec2 
+public satic TreeNode getLastCommonParent(TreeNode root, TreeNode n1, TreeNode n2){
+	if(root == null || n1 == root || n2 == root){
+		return root;
+	}
+	TreeNode left = getLastCommonParent(root.left, n1, n2);
+	TreeNode right = getLastCommonParent(root.right, n1, n2);
+	if(left != null && right != null){
+		return root;
+	}
+	if(left != null){
+		return left;
+	}
+	if(right != null){
+		return right;
+	}
+	return null;
+}
  * 12. 求二叉树中节点的最大距离：getMaxDistanceRec 
+ 高兴了再写吧~~
  * 13. 由前序遍历序列和中序遍历序列重建二叉树：rebuildBinaryTreeRec 
  * 14.判断二叉树是不是完全二叉树：isCompleteBinaryTree, isCompleteBinaryTreeRec 
  *  
