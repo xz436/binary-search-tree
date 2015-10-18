@@ -1,4 +1,4 @@
-* TODO: 
+* TODO: 一定要能熟练地写出所有问题的递归和非递归做法！ 
  * 
  * 1. 求二叉树中的节点个数: getNodeNumRec（递归），getNodeNum（迭代） 
  * 2. 求二叉树的深度: getDepthRec（递归），getDepth  
@@ -58,7 +58,7 @@ public static int getNodeNumRec(TreeNode root){
 	}
 	int count = 0;
 	Queue<TreeNode> queue = new LinkedList<TreeNode>();
-	queue.offer();
+	queue.offer(root);
 	while(!queue.isEmpty()){
 		int size = queue.size();
 		for(int i = 0; i < size; i++){
@@ -201,10 +201,10 @@ public static ArrayList<Integer> postorderTraversal(TreeNode root){
 		TreeNode node = stack.pop();
 		result.add(0, node.val);
 		if(node.left != null){
-			stack.push(node.right);
+			stack.push(node.left);
 		}
 		if(node.right != null){
-			stack.push(node.left);
+			stack.push(node.right);
 		}
 	}
 	return result;
@@ -407,7 +407,115 @@ public satic TreeNode getLastCommonParent(TreeNode root, TreeNode n1, TreeNode n
 	return null;
 }
  * 12. 求二叉树中节点的最大距离：getMaxDistanceRec 
- 高兴了再写吧~~
+这题一定要弄清楚你定义的maxDepth是什么，想象一下，如果求最大距离，横跨左右两个子树的情况就是left.maxDepth + right.maxDepth
+这个跟之前算max path sum不同，因为那个得加root.val
+再注意一下root == null时，想定义maxDepth = 0,那直接result = new ResultType(0, 0);就完成了定义
+public class ResultType{
+	int maxDistance, maxDepth;
+	public ResultType(int maxDistance, int maxDepth){
+		this.maxDistance = maxDistance;
+		this.maxDepth = maxDepth;
+	}
+}
+public static int getMaxDistance(TreeNode root){
+	ResultType result = getMax(root);
+	return result.maxDistance;
+}
+private static ResultType getMax(TreeNode root){
+	if(root == null){
+		ResultType result = new ResultType(0, 0);
+		return result;
+	}
+	ResultType left = getMax(root.left);
+	ResultType right = getMax(root.right);
+	maxDepth = Math.max(left.maxDepth, right.maxDepth) + 1;
+	maxDistance = Math.max(left.maxDepth + right.maxDepth, Math.max(left.maxDistance, right.maxDistance));
+	return new ResultType(maxDistance, maxDepth);
+}
+
+maxPath Sum那个题
+public class returntype{
+	int max;
+	int singleMax;
+	returntype(int max, int singleMax){
+		this.max = max;
+		this.singleMax = singleMax;
+	}
+}
+public static int getMaxDistance(TreeNode root){
+	if(root == null){
+		return 0;
+	}
+	returntype result = getMax(root);
+	return result.max;
+}
+private returntype getMax(TreeNode root){
+	if(root == null){
+		return new returntype(Integer.MIN_VALUE, 0);
+	}
+	//divide
+	returntype left = getMax(root.left);
+	returntype right = getMax(root.right);
+	//conquer
+	singleMax = Math.max(left.singleMax, right.singleMax) + root.val;
+	singleMax = Math.max(singleMax, 0);
+	max = Math.max(left.max, right.max);
+	max = Math.max(left.singleMax + right.singleMax + root.val, max);
+	return new returntype(singleMax, max);
+}
+
  * 13. 由前序遍历序列和中序遍历序列重建二叉树：rebuildBinaryTreeRec 
- * 14.判断二叉树是不是完全二叉树：isCompleteBinaryTree, isCompleteBinaryTreeRec 
+ * 14.判断二叉树是不是完全二叉树：isCompleteBinaryTree, isCompleteBinaryTreeRec
+
+感觉其实有点复杂爱。。。肯定得设定一个mustHaveNoChild来控制遇到null之后的情况，本来想的是看座子树
+是否为null 然后看右子树，但是这样有点复杂，因为右子树的情况完全取决于左子树，所以简单的方法就是一起看
+public static boolean isCompleteBinaryTree(TreeNode root){
+	if(root == null){
+		return false;
+	}
+	Queue<TreeNode> queue = new LinkedList<TreeNode>();
+	queue.offer(root);
+	boolean mustHaveNoChild = false;
+	while(!queue.isEmpty()){
+		int size = queue.size();
+		for(int i = 0; i < size; i++){
+			TreeNode node = queue.poll();
+			if(mustHaveNoChild){
+				if(node.left != null|| node.right != null){
+					return false;
+				}
+			}
+			else{
+
+   //          if(node.left != null){
+			// 	queue.offer(root.left);
+			// }
+			// else{
+			// 	mustHaveNoChild = true;
+
+			// }
+			// if(node.right != null){
+			// 	queue.offer(root.right);
+			// }
+			//if left, right not null
+				if(node.left != null && node.right != null){
+					queue.offer(node.left);
+					queue.offer(node.right);
+				}
+				else if(node.left != null && node.right == null){
+					queue.offer(node.left);
+					mustHaveNoChild = true;
+				}
+				else if(node.left == null && node.right != null){
+					return false;
+				}
+				else if(node.left == null && node.right == null){
+					mustHaveNoChild = true;
+				}
+			}	
+		}
+	}
+	return true;
+}
+
  *  
