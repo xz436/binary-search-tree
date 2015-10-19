@@ -433,7 +433,8 @@ private static ResultType getMax(TreeNode root){
 	return new ResultType(maxDistance, maxDepth);
 }
 
-maxPath Sum那个题
+类似Binary tree maximum path sum 那个题
+
 public class returntype{
 	int max;
 	int singleMax;
@@ -442,14 +443,15 @@ public class returntype{
 		this.singleMax = singleMax;
 	}
 }
-public static int getMaxDistance(TreeNode root){
-	if(root == null){
+    public int maxPathSum(TreeNode root) {
+        // write your code here
+        if(root == null){
 		return 0;
 	}
 	returntype result = getMax(root);
 	return result.max;
-}
-private returntype getMax(TreeNode root){
+    }
+    private returntype getMax(TreeNode root){
 	if(root == null){
 		return new returntype(Integer.MIN_VALUE, 0);
 	}
@@ -457,11 +459,11 @@ private returntype getMax(TreeNode root){
 	returntype left = getMax(root.left);
 	returntype right = getMax(root.right);
 	//conquer
-	singleMax = Math.max(left.singleMax, right.singleMax) + root.val;
+	int singleMax = Math.max(left.singleMax, right.singleMax) + root.val;
 	singleMax = Math.max(singleMax, 0);
-	max = Math.max(left.max, right.max);
+	int max = Math.max(left.max, right.max);
 	max = Math.max(left.singleMax + right.singleMax + root.val, max);
-	return new returntype(singleMax, max);
+	return new returntype(max, singleMax);
 }
 
  * 13. 由前序遍历序列和中序遍历序列重建二叉树：rebuildBinaryTreeRec 
@@ -518,4 +520,17 @@ public static boolean isCompleteBinaryTree(TreeNode root){
 	return true;
 }
 
- *  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
