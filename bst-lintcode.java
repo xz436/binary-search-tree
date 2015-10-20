@@ -248,6 +248,184 @@ public class Solution {
         return result;
     }
 以上是lintcode ladder中的题。。。二叉树太多，以后每天来5道吧。。。
+9. construct bianary tree from preorder and inorder traversal
+
+想法其实很简单，就是先分别把preorder和inorder写出来，然后通过preorder找到root.val然后通过post找到
+如何分左右子树
+值得注意的是退出条件preStart > preEnd 时返回null，这个可以用1,2举例，1的右子树为null 看这个时候preStart=2, preEnd = 1
+public TreeNode buildTree(int[] preorder, int[] inorder) {
+        // write your code here
+        return buildTree(preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+    private TreeNode buildTree(int[] preorder, int preStart, int preEnd, int[] inorder, int inStart, int inEnd){
+        // if(preorder == null || preorder.length == 0){
+        //     return null;
+        // }
+        // if(preStart == preEnd ){
+        //     return new TreeNode(preStart);
+        // }
+        if(preStart > preEnd || inStart > inEnd){
+            return null;
+        }
+        TreeNode root = new TreeNode(preorder[preStart]);
+        int index = 0;
+        //search index of root in inorder
+        for(int i = inStart; i <= inEnd; i++){
+            if(inorder[i] == root.val){
+                index = i;
+                break;
+            }
+        }
+        TreeNode left = buildTree(preorder, preStart + 1, preStart + index - inStart, inorder, inStart, index - 1);
+        TreeNode right = buildTree(preorder, preStart + index - inStart + 1, preEnd, inorder, index + 1, inEnd);
+        root.left = left;
+        root.right = right;
+        return root;
+    }
+}
+
+10. construct binary tree from inorder and postorder traversal
+跟上个题类似
+public TreeNode buildTree(int[] inorder, int[] postorder) {
+        // write your code here
+        return buildTree(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
+    }
+    private TreeNode buildTree(int[] inorder, int inStart, int inEnd, int[] postorder, int postStart, int postEnd){
+        if(inStart > inEnd || postStart > postEnd){
+            return null;
+        }
+        int index = 0;
+        TreeNode root = new TreeNode(postorder[postEnd]);
+        for(int i = inStart; i <= inEnd; i++){
+            if(inorder[i] == root.val){
+                index = i;
+                break;
+            }
+        }
+        TreeNode left = buildTree(inorder, inStart, index - 1, postorder, postStart, index - 1 - inStart + postStart);
+        TreeNode right = buildTree(inorder, index + 1, inEnd, postorder, index - inStart + postStart, postEnd -1);
+        //X - postStart = index - 1-inStart
+        root.left = left;
+        root.right = right;
+        return root;
+    }
+11. convert sorted array to binary search tree 
+想法很简单就是用recursion，root肯定是sorted array中的中间值，先找出来之后。再确定left, right
+所以肯定需要starting, ending 的 index来表示left, right 所以建个helper function有starting
+和ending index的
+ public TreeNode sortedArrayToBST(int[] A) {  
+        // write your code here
+        return sortedArrayToBST(A, 0, A.length - 1);
+    }  
+    private TreeNode sortedArrayToBST(int[] A, int start, int end){
+        if(A == null || start > end){
+           return null; 
+        }
+        if(start == end){
+            return new TreeNode(A[start]);
+        }
+        TreeNode root = new TreeNode(A[(start + end)/2]);
+        TreeNode left = sortedArrayToBST(A, start, (start + end)/2 - 1);
+        TreeNode right = sortedArrayToBST(A, (start + end)/2 + 1, end);
+        root.left = left;
+        root.right = right;
+        return root;
+    }
+所以类似的以后要是给定一个树，我们能用inorder traverse来遍历这个树，那就能重建树啦
+
+12. convert sorted list to binary search tree
+想法很简单，类似于given sorted array to make BST,第一步就是找到list的中点作为root
+然后对左边的list调用函数作为left，
+注意1：要把slow前的那个点接null
+2：left = sort(head)
+想一下如果root就是head，那怎么办，应该这时候直接让left = null啦！
+ public TreeNode sortedListToBST(ListNode head) {  
+        // write your code here
+        if(head == null){
+            return null;
+        }
+        if(head.next == null){
+           return new TreeNode(head.val); 
+        }
+        //find the middle node of list first
+        ListNode pre = new ListNode(0);
+        pre.next = head;
+        ListNode slow = head;
+        ListNode fast = head.next;
+        while(fast != null && fast.next != null){
+            fast = fast.next.next;
+            slow = slow.next;
+            pre = pre.next;
+        }
+        pre.next = null;
+        TreeNode root = new TreeNode(slow.val);
+        TreeNode left = null;
+        if(slow != head){
+            left = sortedListToBST(head);
+        }
+        TreeNode right = sortedListToBST(slow.next);
+        root.left = left;
+        root.right = right;
+        return root;
+    }
+13. construct bianry search tree by preorderTraversal
+public TreeNode preToBST(int[] A){
+	if(A == null){
+		return null;
+	}
+	return preToBST(A, 0, A.length - 1);
+}
+private TreeNode preToBST(int[] A, int start, int end){
+	if(A == null){
+		return null;
+	}
+	if(start > end){
+		return null;
+	}
+	TreeNode root = new TreeNode(A[start]);
+	//find the first index that is larger than root.val，so try to find the "index" where A[index] is larger than A[start]
+	//by using binary search. if we cant find such index, it means there is nothing in right child. so we check whether end > start
+	//if so it means, it must has a left child 
+	int a = start;
+	int b = end;
+	int mid;
+	int index = start;
+	while(a + 1 < b){
+		mid = (b - a)/2 + a;
+		if(A[mid] > root.val){
+			b = mid;
+		}
+		else{
+			a = mid;
+		}
+	}
+	if(A[a] > root.val){
+		index = a;
+	}
+	else if(A[b] > root.val){
+		index = b;
+	}
+	index = -1;
+	TreeNode left = null;
+	TreeNode right = null;
+	if(index != -1){
+		right = preToBST(A, index, end);
+	}
+	if(end > start){
+		if(index != -1){
+			left = preToBST(A, start + 1, index - 1);
+		}
+		else{
+			left = preToBST(A, start + 1, end);
+		}
+	}
+	root.left = left;
+	root.right = right;
+	return root;
+}
+
+
+
 9.serialization
 10.delete a node
 
